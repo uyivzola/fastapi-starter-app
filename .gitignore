@@ -1,0 +1,21 @@
+# Python files
+*.pyc
+__pycache__/
+
+# Virtual environment
+venv/
+
+# Logs
+*.log
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Configuration files
+*.ini
+*.cfg
+*.conf
+
+# Secret files
+secret.txt
