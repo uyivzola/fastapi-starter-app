@@ -1,5 +1,5 @@
 from typing import List
-
+from ..oauth2 import get_current_user 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
@@ -59,7 +59,7 @@ return new_post returns the newly created post as the response to the client.
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
-def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
+def create_post(post: schemas.PostCreate, db: Session = Depends(get_db), get_current_user:int=Depends(get_current_user)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
     db.commit()
