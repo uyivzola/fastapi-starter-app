@@ -6,21 +6,24 @@ from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..database import get_db
 
-router=APIRouter()
+router=APIRouter(
+    prefix='/posts',
+    tags=['Posts']
+)
 
 # Read post
 # Defining a GET route at the /posts URL that returns a list of Post objects in JSON format.
 # The response_model parameter specifies the model that should be used to validate the response.<--
 # The db parameter uses the get_db dependency to provide a database session to the route function. --->
 # The db.query(models.Post).all() line fetches all Post objects from the database using the provided session. user <---- server
-@router.get('/posts', response_model=List[schemas.Post])
+@router.get('/', response_model=List[schemas.Post])
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     print(posts)
     return posts
 
 
-# Read 1 post /posts/:id
+# Read 1 post //:id
     """
 Defining a GET route at the /posts/{id} URL that returns a single Post object with the given ID in JSON format.
 The response_model parameter specifies the model that should be used to validate the response.
@@ -31,7 +34,7 @@ If the Post object is not found, an HTTPException with status code 404 is raised
     """
 
 
-@router.get('/posts/{id}', response_model=schemas.Post)
+@router.get('/{id}', response_model=schemas.Post)
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
     if not post:
@@ -55,7 +58,7 @@ return new_post returns the newly created post as the response to the client.
     """
 
 
-@router.post('/posts', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
+@router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
     new_post = models.Post(**post.dict())
     db.add(new_post)
@@ -65,7 +68,7 @@ def create_post(post: schemas.PostCreate, db: Session = Depends(get_db)):
 
 
 # Update put/patch
-@router.put('/posts/{id}', status_code=status.HTTP_202_ACCEPTED, response_model=schemas.Post)
+@router.put('/{id}', status_code=status.HTTP_202_ACCEPTED, response_model=schemas.Post)
 def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends(get_db)):
     # Query for the post with the specified ID
     post = db.query(models.Post).filter(models.Post.id == id).first()
@@ -90,7 +93,7 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
 # DELETE POST
 
 
-@router.delete('/posts/{id}', status_code=status.HTTP_204_NO_CONTENT)
+@router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int, db: Session = Depends(get_db)):
     # query the database for the post with the given id
     post = db.query(models.Post).filter(models.Post.id == id)
