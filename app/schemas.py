@@ -11,6 +11,7 @@ class PostBase(BaseModel):
 class Post(PostBase):
     id: int
     created_at: datetime
+    owner_id:int
 
     # This configures Pydantic to use ORM mode, which allows the Post object to be returned directly from the database
     class Config:
@@ -27,8 +28,8 @@ class PostCreate(PostBase):
 # Define a Pydantic BaseModel for creating new users
 class UserCreate(BaseModel):
     email: EmailStr
-    first_name: str
-    last_name: str
+    # first_name: str
+    # last_name: str
     password: str
 
 
@@ -36,8 +37,8 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     id: int
     email: EmailStr
-    first_name: str
-    last_name: str
+    # first_name: str
+    # last_name: str
     created_at: datetime
 
     # This configures Pydantic to use ORM mode, which allows the User object to be returned directly from the database

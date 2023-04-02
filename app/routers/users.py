@@ -52,8 +52,8 @@ def update_user(id: int, updated_user: schemas.UserCreate, db: Session = Depends
 
     user.email = updated_user.email
     user.password = updated_user.password
-    user.first_name = updated_user.first_name
-    user.last_name = updated_user.last_name
+    # user.first_name = updated_user.first_name
+    # user.last_name = updated_user.last_name
     db.commit()  # make changes to DB
     db.refresh(user)  # return updated post to user
     return user
