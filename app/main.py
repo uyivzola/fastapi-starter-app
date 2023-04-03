@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from . import models
 from .database import engine
 from .routers import auth, posts, users
-
+from .config import settings
 # interacting with DATABASE
 # copy + paste from fastapi website
 # Creating database tables using metadata in models.py and the database engine.
