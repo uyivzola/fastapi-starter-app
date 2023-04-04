@@ -1,38 +1,43 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
-
+from sqlalchemy import func
 from .. import models, schemas, database, oauth2
 
 router = APIRouter(
     prefix='/posts',
     tags=['Posts']
 )
+
 # READ ALL POSTS
 # response_model  is used to specify the type of data that will be returned by this endpoint
-@router.get('/', response_model=List[schemas.Post])
+@router.get('/', response_model=List[schemas.PostOut])
 def get_posts(db: Session = Depends(database.get_db),
-              current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 10, search: Optional[str] = ""):
+              current_user: int = Depends(oauth2.get_current_user), limit: int = 10, skip: int = 0, search: Optional[str] = ""):
     # Get all posts from the database
-    posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    # posts = db.query(models.Post).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
     # posts = db.query(models.Post).filter(models.Post.owner_id==current_user.id).all() # getting only user's id not whole people
     # Return the list of posts
-    return posts
+    results = db.query(models.Post, func.count(models.Vote.post_id == models.Post.id).label('votes')).join(
+        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.title.contains(search)).limit(limit).offset(skip).all()
+    return results
 
 # GET SPECIFIC POST by ID
 # response_model argument specifies that the response should be serialized according to the Post schema defined in schemas.py
-@router.get('/{id}', response_model=schemas.Post)
+@router.get('/{id}', response_model=schemas.PostOut)
 def get_post(id: int,
              db: Session = Depends(database.get_db),
              current_user: int = Depends(oauth2.get_current_user)):
-    post = db.query(models.Post).filter(models.Post.id ==
-                                        id).first()  # Query the post by its ID
+    # post = db.query(models.Post).filter(models.Post.id ==
+    #                                     id).first()  # Query the post by its ID
+    post = db.query(models.Post, func.count(models.Vote.post_id == models.Post.id).label('votes')).join(
+        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(models.Post.id==str(id)).first()
     if not post:  # If the post doesn't exist, raise an HTTPException
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Oops! 😔💔 Looks like the post with ID {id} you're looking for isn't here. 😞🕵️‍♀️🔍😞")
     return post  # If the post exists, return it
 
-# CREATE A ROUTE
+# CREATE A POST
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Post)
 def create_post(
         # expects a post object from the request body, validated against the Post model in schemas.py
@@ -78,8 +83,8 @@ def update_post(id: int,
     db.refresh(post)  # return updated post to user
     return post
 
-# DELETE POST
 
+# DELETE POST
 @router.delete('/{id}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int,
                 db: Session = Depends(database.get_db),
