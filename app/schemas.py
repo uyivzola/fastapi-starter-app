@@ -42,6 +42,12 @@ class Post(PostBase):
 class PostCreate(PostBase):
     pass
 
+class PostOut(BaseModel):
+    Post:Post
+    votes: int
+    
+    class Config:
+        orm_mode = True
 
 # Define a Pydantic BaseModel for creating new users
 class UserCreate(BaseModel):
@@ -71,3 +77,5 @@ class TokenData(BaseModel):
 class Vote(BaseModel):
     post_id: int
     dir: conint(le=1)
+    class Config:
+        orm_mode = True
