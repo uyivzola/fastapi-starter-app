@@ -1,5 +1,4 @@
 from typing import List, Optional
-from ..oauth2 import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
