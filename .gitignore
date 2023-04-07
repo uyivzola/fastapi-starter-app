@@ -5,18 +5,3 @@ __pycache__/
 # Virtual environment
 venv/
 .env
-
-# Logs
-*.log
-
-# IDE-specific files
-.vscode/
-.idea/
-
-# Configuration files
-*.ini
-*.cfg
-*.conf
-
-# Secret files
-secret.txt
